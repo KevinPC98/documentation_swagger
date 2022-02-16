@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  title: microblog API
+  description: |
+    microblog API.
+  version: 1.0.0
+tags:
+  - name: accounts
+    description: CRUD of accounts
+paths:
+  /accounts:
+    get:
+      summary: List of accounts 
+      tags:
+        - accounts
+      description:  This will return a list of accounts
+      response:
+        '200':
+          description: 
+          content:
+  /accounts/{account_uuid}:
