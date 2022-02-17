@@ -7,6 +7,8 @@ info:
 tags:
   - name: accounts
     description: CRUD of accounts
+  - name: posts
+    description: CRUD of posts 
 paths:
   /accounts:
     get:
@@ -14,8 +16,185 @@ paths:
       tags:
         - accounts
       description:  This will return a list of accounts
-      response:
+      responses:
         '200':
-          description: 
+          description: return a list of accounts 
           content:
-  /accounts/{account_uuid}:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responsePostDTO"
+  /posts:
+    get:
+      summary: List of posts depend on a specific user 
+      tags:
+        - posts
+      description:  This will return a list of posts
+      responses:
+        '200':
+          description: return a list of posts  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/responsePostDTO"
+    post:
+      summary: Create a post
+      tags:
+        - posts
+      description:  This will create a post
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/requestPostDTO"
+      responses:
+        '200':
+          description: return a list of posts  
+          content:
+            application/json:
+              schema:
+                type: array
+                $ref: "#/components/schemas/responsePostDTO"
+  /posts/{postId}:
+    get:
+      summary: Return a specific post 
+      tags:
+        - posts
+      description:  This will return a post
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      responses:
+        '200':
+          description: return a post  
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responsePostDTO"
+    patch:
+      summary: Partial update a specific post
+      tags:
+        - posts
+      description:  This will do a partial update, change status of is_public 
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/updateReqPostDTO"
+      responses:
+        '200':
+          description: return a list of posts  
+          content:
+            application/json:
+              schema:
+                type: array
+                $ref: "#/components/schemas/responsePostDTO"
+    put:
+      summary: Do a total update a specific post
+      tags:
+        - posts
+      description:  do a total update a post 
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/responsePostDTO"
+      responses:
+        '200':
+          description: return a list of posts  
+          content:
+            application/json:
+              schema:
+                type: array
+                $ref: "#/components/schemas/responsePostDTO"
+    delete:
+      summary: delete a specific post by id
+      tags:
+        - posts
+      description:  This will delete a post
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      responses:
+        '204':
+          description: return a list of posts  
+components:
+  schemas:
+    requestPostDTO:
+      type: object
+      description: A created post
+      properties:
+        id:
+          description: |
+            Unique ID identifying a post
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: My first blog
+        content:
+          description: post's description 
+          type: string
+          example: My first blog's description 
+        is_public:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+        user:
+          type: object
+          description: user who created this post
+          properties:
+            userId:
+              description: user's id
+              type: string
+              format: uuid
+        
+    responsePostDTO:
+      type: object
+      description: A posts
+      properties:
+        title:
+          type: string
+          example: My first blog
+        content:
+          description: post's description 
+          type: string
+          example: My first blog's description 
+        is_public:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          
+    updateReqPostDTO:
+      type: object
+      description: A posts
+      properties:
+        title:
+          type: string
+          example: My first blog
+        content:
+          description: post's description 
+          type: string
+          example: My first blog's description 
+        is_public:
+          type: boolean
+          example: true
+  parameters:
+    postId:
+      name: postId
+      in: path
+      required: true
+      description: Post's identification
+      schema:
+        type: string
+      
