@@ -5,17 +5,78 @@ info:
     microblog API.
   version: 1.0.0
 tags:
-  - name: accounts
-    description: CRUD of accounts
+  - name: auth
+    description: users authentication 
   - name: posts
     description: CRUD of posts 
   - name: Comment
     description: Comments endpoints
-  - name: Post
-    description: Posts endpoints
 
 paths:
-  
+  /auth/login:
+    post:
+      summary: a user login  
+      tags:
+      - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/requestLoginDTO"
+      responses:
+        '201':
+          description: successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responseLoginDTO"
+  /auth/signup:
+    post:
+      summary: a user sign up
+      tags:
+      - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/requestSignupDTO"
+      responses:
+        '201':
+          description: successful sign up 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responseSignupDTO"
+  /auth/profile:
+    get:
+      summary: return a user's profile
+      tags:
+      - auth
+      responses:
+        '200':
+          description: This will return a user's profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userDTO"
+    patch:
+      summary: update a user's profile
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/updateUserDTO"
+      responses:
+        '201':
+          description: This will update a user's profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userDTO"
   /posts:
     get:
       summary: List of posts depend on a specific user 
@@ -220,9 +281,114 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Comment'
-
+  
 components:
   schemas:
+    requestLoginDTO:
+      type: object
+      description: a email and password
+      properties:
+        email:
+          type: string
+          example: example@gmail.com
+        password:
+          type: string
+          example: 23456789
+    responseLoginDTO:
+      type: object
+      description: A token
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    requestSignupDTO:
+      type: object
+      description: A new user
+      properties:
+        name:
+          type: string
+          example: John 
+        username:
+          type: string
+          example: user1 
+        email:
+          type: string
+          example: example@gmail.com
+        pasword:
+          type: string
+          example: 23456
+        passwordConfirmation:
+          type: string
+          example: 23456
+    responseSignupDTO:
+      type: object
+      description: A new user
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: John 
+        username:
+          type: string
+          example: user1 
+        email:
+          type: string
+          example: example@gmail.com
+    userDTO:
+      type: object
+      description: A created post
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: John
+        username: 
+          type: string
+          example: user1
+        email:
+          type: string
+          example: example@gmail.com
+        isPublishedEmail:
+          type: boolean
+          example: true
+        isPublishedName:
+          type: boolean
+          example: true
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    updateUserDTO:
+      type: object
+      description: A created post
+      properties:
+        name:
+          type: string
+          example: John
+        username: 
+          type: string
+          example: user1
+        email:
+          type: string
+          example: example@gmail.com
+        isPublishedEmail:
+          type: boolean
+          example: true
+        isPublishedName:
+          type: boolean
+          example: true
+        isActive:
+          type: boolean
+          example: true
+
     requestPostDTO:
       type: object
       description: A created post
