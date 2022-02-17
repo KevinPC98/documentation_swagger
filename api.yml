@@ -5,17 +5,130 @@ info:
     microblog API.
   version: 1.0.0
 tags:
-  - name: accounts
-    description: CRUD of accounts
+  - name: Comment
+    description: Comments endpoints
+  - name: Post
+    description: Posts endpoints
 paths:
-  /accounts:
+  /posts/{post_id}/comments:
+    parameters:
+      - name: post_id
+        in: path
+        description: post id
+        required: true
+        schema:
+          type: string
+          format: id
     get:
-      summary: List of accounts 
       tags:
-        - accounts
-      description:  This will return a list of accounts
-      response:
+        - Comment
+      summary: Returns comments from post
+      description: Returns a list of comments
+      responses:
         '200':
-          description: 
+          description: Comments returned
           content:
-  /accounts/{account_uuid}:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+    
+    post:
+      tags:
+        - Comment
+      summary: Send a comment
+      description: a user comments on a post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBody'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    
+  /posts/{post_id}/comments/{comment_id}:
+    parameters: 
+      - name: post_id
+        in: path
+        description: post id
+        required: true
+        schema:
+          type: string
+          format: id
+      - name: comment_id
+        in: path
+        description: comment id
+        required: true
+        schema:
+          type: string
+          format: id
+    get:
+      tags: 
+        - Comment
+      summary: Read a comment
+      description: Reading a comment
+      responses:
+        '200':
+          description: Comment object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+  
+    delete:
+      tags: 
+        - Comment
+      summary: Delete a comment
+      description: a user deletes a comment
+      responses:
+        '200':
+          description: Comment deleted
+      
+    put:
+      tags: 
+        - Comment
+      summary: Update comment
+      description: User updates his comment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBody'
+      responses:
+        '200':
+          description: The commend object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    
+components:
+  schemas:
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: id
+        user_id:
+          type: string
+        post_id:
+          type: number
+        content:
+          type: string
+        is_public:
+          type: boolean
+    CommentBody:
+      type: object
+      properties:
+        content:
+          type: string
