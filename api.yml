@@ -9,20 +9,13 @@ tags:
     description: CRUD of accounts
   - name: posts
     description: CRUD of posts 
+  - name: Comment
+    description: Comments endpoints
+  - name: Post
+    description: Posts endpoints
+
 paths:
-  /accounts:
-    get:
-      summary: List of accounts 
-      tags:
-        - accounts
-      description:  This will return a list of accounts
-      responses:
-        '200':
-          description: return a list of accounts 
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/responsePostDTO"
+  
   /posts:
     get:
       summary: List of posts depend on a specific user 
@@ -126,6 +119,108 @@ paths:
       responses:
         '204':
           description: return a list of posts  
+
+  /posts/{post_id}/comments:
+    parameters:
+      - name: post_id
+        in: path
+        description: post id
+        required: true
+        schema:
+          type: string
+          format: id
+    get:
+      tags:
+        - Comment
+      summary: Returns comments from post
+      description: Returns a list of comments
+      responses:
+        '200':
+          description: Comments returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+    
+    post:
+      tags:
+        - Comment
+      summary: Send a comment
+      description: a user comments on a post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBody'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    
+  /posts/{post_id}/comments/{comment_id}:
+    parameters: 
+      - name: post_id
+        in: path
+        description: post id
+        required: true
+        schema:
+          type: string
+          format: id
+      - name: comment_id
+        in: path
+        description: comment id
+        required: true
+        schema:
+          type: string
+          format: id
+    get:
+      tags: 
+        - Comment
+      summary: Read a comment
+      description: Reading a comment
+      responses:
+        '200':
+          description: Comment object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+  
+    delete:
+      tags: 
+        - Comment
+      summary: Delete a comment
+      description: a user deletes a comment
+      responses:
+        '200':
+          description: Comment deleted
+      
+    put:
+      tags: 
+        - Comment
+      summary: Update comment
+      description: User updates his comment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentBody'
+      responses:
+        '200':
+          description: The commend object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
 components:
   schemas:
     requestPostDTO:
@@ -189,6 +284,27 @@ components:
         is_public:
           type: boolean
           example: true
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: id
+        user_id:
+          type: string
+        post_id:
+          type: number
+        content:
+          type: string
+        is_public:
+          type: boolean
+    CommentBody:
+      type: object
+      properties:
+        content:
+          type: string
+
   parameters:
     postId:
       name: postId
@@ -197,4 +313,3 @@ components:
       description: Post's identification
       schema:
         type: string
-      
