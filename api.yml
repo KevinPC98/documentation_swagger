@@ -9,8 +9,10 @@ tags:
     description: users authentication 
   - name: posts
     description: CRUD of posts 
-  - name: Comment
+  - name: comment
     description: Comments endpoints
+  - name: like
+    description: Methods of Like
 
 paths:
   /auth/login:
@@ -181,18 +183,12 @@ paths:
         '204':
           description: return a list of posts  
 
-  /posts/{post_id}/comments:
+  /posts/{postId}/comments:
     parameters:
-      - name: post_id
-        in: path
-        description: post id
-        required: true
-        schema:
-          type: string
-          format: id
+      - $ref: "#/components/parameters/postId"
     get:
       tags:
-        - Comment
+        - comment
       summary: Returns comments from post
       description: Returns a list of comments
       responses:
@@ -206,45 +202,34 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Comment'
+                      $ref: '#/components/schemas/commentDTO'
     
     post:
       tags:
-        - Comment
+        - comment
       summary: Send a comment
       description: a user comments on a post
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentBody'
+              $ref: '#/components/schemas/requestCommentDTO'
       responses:
         '201':
           description: Comment created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: '#/components/schemas/commentDTO'
     
-  /posts/{post_id}/comments/{comment_id}:
+  /posts/{postId}/comments/{commentId}:
     parameters: 
-      - name: post_id
-        in: path
-        description: post id
-        required: true
-        schema:
-          type: string
-          format: id
-      - name: comment_id
-        in: path
-        description: comment id
-        required: true
-        schema:
-          type: string
-          format: id
+      - $ref: "#/components/parameters/postId"
+      - $ref: "#/components/parameters/commentId"
+
     get:
-      tags: 
-        - Comment
+      tags:
+        - comment
       summary: Read a comment
       description: Reading a comment
       responses:
@@ -253,34 +238,124 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: '#/components/schemas/commentDTO'
   
-    delete:
+    patch:
       tags: 
-        - Comment
-      summary: Delete a comment
-      description: a user deletes a comment
-      responses:
-        '200':
-          description: Comment deleted
-      
-    put:
-      tags: 
-        - Comment
+        - comment
       summary: Update comment
       description: User updates his comment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentBody'
+              $ref: '#/components/schemas/requestCommentDTO'
       responses:
         '200':
           description: The commend object
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: '#/components/schemas/commentDTO'
+  
+    delete:
+      tags: 
+        - comment
+      summary: Delete a comment
+      description: a user deletes a comment
+      responses:
+        '200':
+          description: Comment deleted
+  
+  /posts/{postId}/comments/{commentId}/like:
+    parameters: 
+      - $ref: "#/components/parameters/postId"
+      - $ref: "#/components/parameters/commentId"
+
+    get:
+      tags:
+        - like
+      summary: likes from comments
+      description: Show a list of likes
+      responses:
+        '200':
+          description: Comments returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/likeDTO'
+  
+    post:
+      tags:
+        - like
+      summary: Send a like
+      description: a user likes a comment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestLikeDTO'
+      responses:
+        '201':
+          description: Like created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseLikeDTO'
+                
+
+  /posts/{postId}/comments/{commentId}/like/{likeId}:
+    parameters: 
+      - $ref: "#/components/parameters/postId"
+      - $ref: "#/components/parameters/commentId"
+      - $ref: "#/components/parameters/likeId"
+
+    get:
+      tags:
+        - like
+      summary: data of like
+      description: Reading a like
+      responses:
+        '200':
+          description: Like object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/likeDTO'
+  
+    patch:
+      tags: 
+        - like
+      summary: Update like
+      description: User updates modifies his like
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestLikeDTO'
+      responses:
+        '200':
+          description: The like object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/likeDTO'
+  
+    delete:
+      tags: 
+        - like
+      summary: user removes his like
+      description: a user removes his like
+      responses:
+        '200':
+          description: like removed
+                
+    
   
 components:
   schemas:
@@ -451,26 +526,51 @@ components:
           type: boolean
           example: true
 
-    Comment:
+    commentDTO:
       type: object
       properties:
         id:
           type: string
-          format: id
+          format: uuid
         user_id:
           type: string
         post_id:
           type: number
         content:
           type: string
+          example: "first comment"
         is_public:
           type: boolean
-    CommentBody:
+  
+    requestCommentDTO:
       type: object
       properties:
         content:
           type: string
-
+    
+    likeDTO:
+      type: object
+      properties:
+        like_item_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+        like:
+          type: boolean
+    
+    requestLikeDTO:
+      type: object
+      properties:
+        like:
+          type: boolean
+          
+    responseLikeDTO:
+      type: object
+      properties:
+        like:
+          type: boolean
+    
   parameters:
     postId:
       name: postId
@@ -479,3 +579,21 @@ components:
       description: Post's identification
       schema:
         type: string
+    commentId:
+      name: commentId
+      in: path
+      description: comment id
+      required: true
+      schema:
+        type: string
+        format: id
+    likeId:
+      name: likeId
+      in: path
+      description: like id
+      required: true
+      schema:
+        type: string
+        format: id
+    
+    
