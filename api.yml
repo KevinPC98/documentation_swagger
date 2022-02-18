@@ -10,9 +10,9 @@ tags:
   - name: posts
     description: CRUD of posts 
   - name: comment
-    description: Comments endpoints
+    description: CRUD of comments
   - name: like
-    description: Methods of Like
+    description: CRUD of Like
 
 paths:
   /auth/login:
@@ -79,6 +79,44 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/userDTO"
+  /auth/forgotPassword:
+    post:
+      summary: user forgot password
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: 
+                  type: string
+                  example: example@gmail.com
+      responses:
+        '201':
+          description: return 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email: 
+                    type: string
+                    example: example@gmail.com
+                  
+                  tempPassword: 
+                    type: string
+                    example: sd@f3$9^9k#
+                
+  /auth/logout:
+    delete:
+      summary: user logout
+      tags:
+      - auth
+      responses: 
+        '204': 
+          description: user logout successfully
   /posts:
     get:
       summary: List of posts depend on a specific user 
@@ -99,8 +137,6 @@ paths:
       tags:
         - posts
       description:  This will create a post
-      parameters:
-        - $ref: "#/components/parameters/postId"
       requestBody:
         required: true
         content:
@@ -114,7 +150,8 @@ paths:
             application/json:
               schema:
                 type: array
-                $ref: "#/components/schemas/responsePostDTO"
+                items: 
+                  $ref: "#/components/schemas/responsePostDTO"
   /posts/{postId}:
     get:
       summary: Return a specific post 
@@ -150,28 +187,9 @@ paths:
             application/json:
               schema:
                 type: array
-                $ref: "#/components/schemas/responsePostDTO"
-    put:
-      summary: Do a total update a specific post
-      tags:
-        - posts
-      description:  do a total update a post 
-      parameters:
-        - $ref: "#/components/parameters/postId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/responsePostDTO"
-      responses:
-        '200':
-          description: return a list of posts  
-          content:
-            application/json:
-              schema:
-                type: array
-                $ref: "#/components/schemas/responsePostDTO"
+                items: 
+                  $ref: "#/components/schemas/responsePostDTO"
+    
     delete:
       summary: delete a specific post by id
       tags:
@@ -182,6 +200,74 @@ paths:
       responses:
         '204':
           description: return a list of posts  
+  /posts/{postId}/like:
+    post:
+      summary: user like the post 
+      tags:
+      - like
+      parameters:
+      - $ref: "#/components/parameters/postId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                like:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: This will put a like in a post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message" 
+    get: 
+      summary: show a list of likes 
+      tags: 
+      - like
+      parameters:
+        - $ref: "#/components/parameters/postId"
+        - $ref: '#/components/parameters/like'
+      responses:
+        '200':
+          description: like returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/likeDTO'
+    patch:
+      tags: 
+        - like
+      summary: Update like
+      description: User updates modifies his like
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requestLikeDTO'
+      responses:
+        '200':
+          description: The like object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/message'
+  
+    delete:
+      tags: 
+        - like
+      summary: user removes his like
+      description: a user removes his like
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      responses:
+        '204':
+          description: like removed
+        
 
   /posts/{postId}/comments:
     parameters:
@@ -276,19 +362,15 @@ paths:
       tags:
         - like
       summary: likes from comments
-      description: Show a list of likes
+      parameters:
+        - $ref: '#/components/parameters/like'
       responses:
         '200':
-          description: Comments returned
+          description: return a count
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/likeDTO'
+                $ref: '#/components/schemas/likeDTO'
   
     post:
       tags:
@@ -307,27 +389,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/responseLikeDTO'
-                
-
-  /posts/{postId}/comments/{commentId}/like/{likeId}:
-    parameters: 
-      - $ref: "#/components/parameters/postId"
-      - $ref: "#/components/parameters/commentId"
-      - $ref: "#/components/parameters/likeId"
-
-    get:
-      tags:
-        - like
-      summary: data of like
-      description: Reading a like
-      responses:
-        '200':
-          description: Like object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/likeDTO'
-  
+    
     patch:
       tags: 
         - like
@@ -339,12 +401,12 @@ paths:
             schema:
               $ref: '#/components/schemas/requestLikeDTO'
       responses:
-        '200':
+        '201':
           description: The like object
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/likeDTO'
+                $ref: '#/components/schemas/message'
   
     delete:
       tags: 
@@ -352,11 +414,9 @@ paths:
       summary: user removes his like
       description: a user removes his like
       responses:
-        '200':
+        '204':
           description: like removed
-                
-    
-  
+
 components:
   schemas:
     requestLoginDTO:
@@ -551,13 +611,8 @@ components:
     likeDTO:
       type: object
       properties:
-        like_item_id:
-          type: string
-          format: uuid
-        user_id:
-          type: string
-        like:
-          type: boolean
+        count:
+          type: number
     
     requestLikeDTO:
       type: object
@@ -570,15 +625,21 @@ components:
       properties:
         like:
           type: boolean
-    
+    message:
+      type: object
+      properties:
+        message: 
+          type: string
+          example: suscessful action
   parameters:
     postId:
       name: postId
       in: path
       required: true
-      description: Post's identification
+      description: post id
       schema:
         type: string
+        format: id
     commentId:
       name: commentId
       in: path
@@ -595,5 +656,10 @@ components:
       schema:
         type: string
         format: id
-    
-    
+    like:
+      name: like
+      in: query
+      required: true
+      schema:
+        type: boolean
+        example: true
