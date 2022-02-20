@@ -118,13 +118,14 @@ paths:
                     example: sd@f3$9^9k#
                 
   /auth/logout:
-    delete:
+    post:
       summary: user logout
       tags:
       - auth
       responses: 
         '204': 
           description: user logout successfully
+  
   /posts:
     get:
       summary: List of posts depend on a specific user 
@@ -140,6 +141,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/responsePostDTO"
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
     post:
       summary: Create a post
       tags:
@@ -152,7 +165,7 @@ paths:
             schema:
               $ref: "#/components/schemas/requestPostDTO"
       responses:
-        '200':
+        '201':
           description: return a list of posts  
           content:
             application/json:
@@ -160,14 +173,27 @@ paths:
                 type: array
                 items: 
                   $ref: "#/components/schemas/responsePostDTO"
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+    
   /posts/{postId}:
+    parameters:
+      - $ref: "#/components/parameters/postId"
     get:
       summary: Return a specific post 
       tags:
         - posts
       description:  This will return a post
-      parameters:
-        - $ref: "#/components/parameters/postId"
       responses:
         '200':
           description: return a post  
@@ -175,13 +201,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/responsePostDTO"
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+
     patch:
       summary: Partial update a specific post
       tags:
         - posts
       description:  This will do a partial update, change status of is_public 
-      parameters:
-        - $ref: "#/components/parameters/postId"
+      
       requestBody:
         required: true
         content:
@@ -197,24 +229,49 @@ paths:
                 type: array
                 items: 
                   $ref: "#/components/schemas/responsePostDTO"
+        '404':
+          description: post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
     
     delete:
       summary: delete a specific post by id
       tags:
         - posts
       description:  This will delete a post
-      parameters:
-        - $ref: "#/components/parameters/postId"
       responses:
         '204':
           description: return a list of posts  
+        '404':
+          description: post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                  
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+                
   /posts/{postId}/like:
+    parameters:
+    - $ref: "#/components/parameters/postId"
     post:
       summary: user like the post 
       tags:
       - like
-      parameters:
-      - $ref: "#/components/parameters/postId"
       requestBody:
         content:
           application/json:
@@ -230,13 +287,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/message" 
+                $ref: "#/components/schemas/message"
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+         
     get: 
-      summary: show a list of likes 
+      summary: show a count of likes 
       tags: 
       - like
       parameters:
-        - $ref: "#/components/parameters/postId"
         - $ref: '#/components/parameters/like'
       responses:
         '200':
@@ -245,13 +308,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/likeDTO'
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+        
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+        
     patch:
       tags: 
         - like
       summary: Update like
       description: User updates modifies his like
-      parameters:
-        - $ref: "#/components/parameters/postId"
       requestBody:
         content:
           application/json:
@@ -264,7 +339,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/message'
-  
+        '404':
+          description: like not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                  
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+        
     delete:
       tags: 
         - like
@@ -275,6 +363,19 @@ paths:
       responses:
         '204':
           description: like removed
+        '404':
+          description: like not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                  
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
         
 
   /posts/{postId}/comments:
@@ -643,6 +744,30 @@ components:
         message: 
           type: string
           example: suscessful action
+    code400:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          example: 400
+        code:
+          type: string
+          example: 'Bad Request'
+    code404:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          example: 404
+        code:
+          type: string
+          example: 'Not Found'
+    code500:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'A general error occurred'
   parameters:
     postId:
       name: postId
