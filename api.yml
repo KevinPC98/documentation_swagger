@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: microblog API
+  title: Microblog API
   description: |
-    microblog API.
+    Microblog API.
   version: 1.0.0
 tags:
   - name: Auth
@@ -637,11 +637,17 @@ components:
           description: post's description 
           type: string
           example: My first blog's description 
-        is_public:
+        isPublic:
           type: boolean
           example: true
         createdAt:
           type: string
+        countLike:
+          type: number
+          example: 0
+        countDislike:
+          type: number
+          example: 0
         user: 
           type: object
           description: User did a post
@@ -662,7 +668,7 @@ components:
           description: post's description 
           type: string
           example: My first blog's description 
-        is_public:
+        isPublic:
           type: boolean
           example: true
 
@@ -675,8 +681,14 @@ components:
         content:
           type: string
           example: "first comment"
-        is_public:
+        isPublic:
           type: boolean
+        countLike:
+          type: number
+          example: 0
+        countDislike:
+          type: number
+          example: 0
         user:
           type: object
           description: User did a comment
