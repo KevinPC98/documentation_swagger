@@ -5,22 +5,20 @@ info:
     microblog API.
   version: 1.0.0
 tags:
-  - name: auth
-    description: users authentication 
-  - name: posts
+  - name: Auth
+    description: Users authentication 
+  - name: Posts
     description: CRUD of posts 
-  - name: comment
+  - name: Comments
     description: CRUD of comments
-  - name: like
-    description: CRUD of Like
 
 paths:
   /auth/login:
     post:
-      summary: a user login
+      summary: A user login
       description: Endpoint used to authenticate users
       tags:
-      - auth
+      - Auth
       requestBody:
         required: true
         content:
@@ -43,10 +41,10 @@ paths:
     
   /auth/signup:
     post:
-      summary: a user sign up
+      summary: A user sign up
       description: Endpoint used to register users
       tags:
-      - auth
+      - Auth
       requestBody:
         required: true
         content:
@@ -74,12 +72,12 @@ paths:
                 $ref: "#/components/schemas/code400"
   /auth/profile:
     get:
-      summary: return a user's profile
+      summary: Return a user's profile
       description: Endpoint used to get user's information
       security:
         - bearerAuth: []
       tags:
-      - auth
+      - Auth
       responses:
         '200':
           description: This will return a user's profile
@@ -89,12 +87,12 @@ paths:
                 $ref: "#/components/schemas/userDTO"
     
     patch:
-      summary: update a user's profile
+      summary: Update a user's profile
       description: Endpoint used to update user's information
       security:
         - bearerAuth: []
       tags:
-      - auth
+      - Auth
       requestBody:
         content:
           application/json:
@@ -110,10 +108,10 @@ paths:
   
   /auth/forgot-password:
     post:
-      summary: user forgot password
+      summary: User forgot password
       description: Endpoint used to return an temporal password
       tags:
-      - auth
+      - Auth
       requestBody:
         content:
           application/json:
@@ -146,7 +144,7 @@ paths:
       security:
         - bearerAuth: []
       tags:
-      - auth
+      - Auth
       responses: 
         '204': 
           description: user logout successfully
@@ -157,7 +155,7 @@ paths:
       security:
         - bearerAuth: []
       tags:
-        - posts
+        - Posts
       description:  Endpoint used to create a post
       requestBody:
         required: true
@@ -193,11 +191,11 @@ paths:
     get:
       summary: Get post user
       tags:
-        - posts
+        - Posts
       description:  Endpoint used to return a post
       responses:
         '200':
-          description: return a post  
+          description: return a post
           content:
             application/json:
               schema:
@@ -214,7 +212,7 @@ paths:
       security:
         - bearerAuth: []
       tags:
-        - posts
+        - Posts
       description:  This endpoint is used to update a specific post
       
       requestBody:
@@ -251,7 +249,7 @@ paths:
       security:
         - bearerAuth: []
       tags:
-        - posts
+        - Posts
       description: Endpoint used to delete a specific post
       responses:
         '204':
@@ -273,67 +271,10 @@ paths:
   /posts/{postId}/like:
     parameters:
     - $ref: "#/components/parameters/postId"
-    post:
-      summary: user like the post
-      description: Endpoint used to create a like
-      security:
-        - bearerAuth: []
-      tags:
-      - like
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                like:
-                  type: boolean
-                  example: true
-      responses:
-        '201':
-          description: This will put a like in a post
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/message"
-        '400':
-          description: The specified parameters are not valid
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/code400"
-         
-    get: 
-      summary: show a count of likes 
-      description: Endpoint used to get a count of Likes
-      tags: 
-      - like
-      parameters:
-        - $ref: '#/components/parameters/like'
-      responses:
-        '200':
-          description: like returned
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/likeDTO'
-        '400':
-          description: The specified parameters are not valid
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/code400"
-        
-        '500':
-          description: A general error occurred
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/code500"
         
     patch:
       tags: 
-        - like
+        - Posts
       security:
         - bearerAuth: []
       summary: Update like
@@ -366,10 +307,10 @@ paths:
         
     delete:
       tags: 
-        - like
+        - Posts
       security:
         - bearerAuth: []
-      summary: user removes his like
+      summary: User removes his like
       description: Endpoint used to remove a Like
       parameters:
         - $ref: "#/components/parameters/postId"
@@ -398,7 +339,7 @@ paths:
       - $ref: "#/components/parameters/page"
     get:
       tags:
-        - comment
+        - Comments
       summary: Returns comments from post
       description: Endpoint used to return a list of comments
       responses:
@@ -447,7 +388,7 @@ paths:
     
     post:
       tags:
-        - comment
+        - Comments
       security:
         - bearerAuth: []
       summary: Send a comment
@@ -472,7 +413,7 @@ paths:
 
     get:
       tags:
-        - comment
+        - Comments
       summary: Read a comment
       description: Endpoint used to get a comment
       responses:
@@ -491,7 +432,7 @@ paths:
   
     patch:
       tags: 
-        - comment
+        - Comments
       security:
         - bearerAuth: []
       summary: Update comment
@@ -511,7 +452,7 @@ paths:
   
     delete:
       tags: 
-        - comment
+        - Comments
       security:
         - bearerAuth: []
       summary: Delete a comment
@@ -524,45 +465,10 @@ paths:
     parameters: 
       - $ref: "#/components/parameters/postId"
       - $ref: "#/components/parameters/commentId"
-
-    get:
-      tags:
-        - like
-      summary: Count of likes from comment
-      description: Endpoint used to get a count of Like of comment
-      parameters:
-        - $ref: '#/components/parameters/like'
-      responses:
-        '200':
-          description: return a count
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/likeDTO'
-  
-    post:
-      tags:
-        - like
-      security:
-        - bearerAuth: []
-      summary: Send a like
-      description: Endpoint used to create a like of comment
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/requestLikeDTO'
-      responses:
-        '201':
-          description: Like created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/responseLikeDTO'
     
     patch:
       tags: 
-        - like
+        - Comments
       security:
         - bearerAuth: []
       summary: Update like
@@ -582,10 +488,10 @@ paths:
   
     delete:
       tags: 
-        - like
+        - Comments
       security:
         - bearerAuth: []
-      summary: user removes his like
+      summary: User removes his like
       description: Enpoint used to remove a Like of comment
       responses:
         '204':
@@ -707,11 +613,6 @@ components:
       type: object
       description: A created post
       properties:
-        id:
-          description: |
-            Unique ID identifying a post
-          type: string
-          format: uuid
         title:
           type: string
           example: My first blog
@@ -724,15 +625,7 @@ components:
           example: true
         createdAt:
           type: string
-        user:
-          type: object
-          description: user who created this post
-          properties:
-            userId:
-              description: user's id
-              type: string
-              format: uuid
-        
+
     responsePostDTO:
       type: object
       description: A posts
@@ -749,6 +642,14 @@ components:
           example: true
         createdAt:
           type: string
+        user: 
+          type: object
+          description: User did a post
+          properties:
+            name:
+              type: string
+              example: Coren
+              
           
     updateReqPostDTO:
       type: object
@@ -764,46 +665,26 @@ components:
         is_public:
           type: boolean
           example: true
-          
-    pagination:
-      type: object
-      description: Pagination
-      properties:
-        totalPages:
-          type: number
-          example: 0
-        itemsPerPage:
-          type: number
-          example: 0
-        totalItems:
-          type: number
-          example: 0
-        currentPage:
-          type: number
-          example: 0
-        nextPage:
-          type: number
-          example: 0
-        previousPage:
-          type: number
-          example: 0
-        
-    
+
     commentDTO:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        user_id:
-          type: string
-        post_id:
-          type: number
         content:
           type: string
           example: "first comment"
         is_public:
           type: boolean
+        user:
+          type: object
+          description: User did a comment
+          properties: 
+            name:
+              type: string
+              example: coren
+              
   
     requestCommentDTO:
       type: object
@@ -811,23 +692,12 @@ components:
         content:
           type: string
     
-    likeDTO:
-      type: object
-      properties:
-        count:
-          type: number
-    
     requestLikeDTO:
       type: object
       properties:
         like:
           type: boolean
           
-    responseLikeDTO:
-      type: object
-      properties:
-        like:
-          type: boolean
     message:
       type: object
       properties:
@@ -852,15 +722,7 @@ components:
         code:
           type: string
           example: 'Not Found'
-    code409:
-      type: object
-      properties:
-        statusCode:
-          type: number
-          example: 409
-        code:
-          type: string
-          example: 'Browser conflict'
+
     code500:
       type: object
       properties:
