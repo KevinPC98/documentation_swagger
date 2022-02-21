@@ -17,7 +17,8 @@ tags:
 paths:
   /auth/login:
     post:
-      summary: a user login  
+      summary: a user login
+      description: Endpoint used to authenticate users
       tags:
       - auth
       requestBody:
@@ -35,10 +36,15 @@ paths:
                 $ref: "#/components/schemas/responseLoginDTO"
         '400':
           description: email and password aren't corrects
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
     
   /auth/signup:
     post:
       summary: a user sign up
+      description: Endpoint used to register users
       tags:
       - auth
       requestBody:
@@ -56,10 +62,22 @@ paths:
                 $ref: "#/components/schemas/responseSignupDTO"
         '409':
           description: email is currently being used
-          
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+        '400':
+          description: Passwords must be the same
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
   /auth/profile:
     get:
       summary: return a user's profile
+      description: Endpoint used to get user's information
+      security:
+        - bearerAuth: []
       tags:
       - auth
       responses:
@@ -72,6 +90,9 @@ paths:
     
     patch:
       summary: update a user's profile
+      description: Endpoint used to update user's information
+      security:
+        - bearerAuth: []
       tags:
       - auth
       requestBody:
@@ -87,9 +108,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/userDTO"
   
-  /auth/forgotPassword:
+  /auth/forgot-password:
     post:
       summary: user forgot password
+      description: Endpoint used to return an temporal password
       tags:
       - auth
       requestBody:
@@ -118,33 +140,25 @@ paths:
                     example: sd@f3$9^9k#
                 
   /auth/logout:
-    delete:
-      summary: user logout
+    post:
+      summary: User logout
+      description: Endpoint used to exit the session
+      security:
+        - bearerAuth: []
       tags:
       - auth
       responses: 
         '204': 
           description: user logout successfully
+  
   /posts:
-    get:
-      summary: List of posts depend on a specific user 
-      tags:
-        - posts
-      description:  This will return a list of posts
-      responses:
-        '200':
-          description: return a list of posts  
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/responsePostDTO"
     post:
       summary: Create a post
+      security:
+        - bearerAuth: []
       tags:
         - posts
-      description:  This will create a post
+      description:  Endpoint used to create a post
       requestBody:
         required: true
         content:
@@ -152,7 +166,7 @@ paths:
             schema:
               $ref: "#/components/schemas/requestPostDTO"
       responses:
-        '200':
+        '201':
           description: return a list of posts  
           content:
             application/json:
@@ -160,14 +174,27 @@ paths:
                 type: array
                 items: 
                   $ref: "#/components/schemas/responsePostDTO"
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+    
   /posts/{postId}:
+    parameters:
+      - $ref: "#/components/parameters/postId"
     get:
-      summary: Return a specific post 
+      summary: Get post user
       tags:
         - posts
-      description:  This will return a post
-      parameters:
-        - $ref: "#/components/parameters/postId"
+      description:  Endpoint used to return a post
       responses:
         '200':
           description: return a post  
@@ -175,13 +202,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/responsePostDTO"
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+
     patch:
       summary: Partial update a specific post
+      security:
+        - bearerAuth: []
       tags:
         - posts
-      description:  This will do a partial update, change status of is_public 
-      parameters:
-        - $ref: "#/components/parameters/postId"
+      description:  This endpoint is used to update a specific post
+      
       requestBody:
         required: true
         content:
@@ -197,24 +232,54 @@ paths:
                 type: array
                 items: 
                   $ref: "#/components/schemas/responsePostDTO"
+        '404':
+          description: post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
     
     delete:
-      summary: delete a specific post by id
+      summary: Delete a specific post by id
+      security:
+        - bearerAuth: []
       tags:
         - posts
-      description:  This will delete a post
-      parameters:
-        - $ref: "#/components/parameters/postId"
+      description: Endpoint used to delete a specific post
       responses:
         '204':
           description: return a list of posts  
+        '404':
+          description: post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                  
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+                
   /posts/{postId}/like:
+    parameters:
+    - $ref: "#/components/parameters/postId"
     post:
-      summary: user like the post 
+      summary: user like the post
+      description: Endpoint used to create a like
+      security:
+        - bearerAuth: []
       tags:
       - like
-      parameters:
-      - $ref: "#/components/parameters/postId"
       requestBody:
         content:
           application/json:
@@ -230,13 +295,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/message" 
+                $ref: "#/components/schemas/message"
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+         
     get: 
-      summary: show a list of likes 
+      summary: show a count of likes 
+      description: Endpoint used to get a count of Likes
       tags: 
       - like
       parameters:
-        - $ref: "#/components/parameters/postId"
         - $ref: '#/components/parameters/like'
       responses:
         '200':
@@ -245,13 +317,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/likeDTO'
+        '400':
+          description: The specified parameters are not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code400"
+        
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+        
     patch:
       tags: 
         - like
+      security:
+        - bearerAuth: []
       summary: Update like
-      description: User updates modifies his like
-      parameters:
-        - $ref: "#/components/parameters/postId"
+      description: Endpoint used to update a Like
       requestBody:
         content:
           application/json:
@@ -264,27 +350,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/message'
-  
+        '404':
+          description: like not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                  
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
+        
     delete:
       tags: 
         - like
+      security:
+        - bearerAuth: []
       summary: user removes his like
-      description: a user removes his like
+      description: Endpoint used to remove a Like
       parameters:
         - $ref: "#/components/parameters/postId"
       responses:
         '204':
           description: like removed
+        '404':
+          description: like not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
+                  
+        '500':
+          description: A general error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code500"
         
 
   /posts/{postId}/comments:
     parameters:
       - $ref: "#/components/parameters/postId"
+      - $ref: "#/components/parameters/take"
+      - $ref: "#/components/parameters/page"
     get:
       tags:
         - comment
       summary: Returns comments from post
-      description: Returns a list of comments
+      description: Endpoint used to return a list of comments
       responses:
         '200':
           description: Comments returned
@@ -294,17 +410,48 @@ paths:
                 type: object
                 properties:
                   data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/commentDTO'
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items: 
+                          $ref: '#/components/schemas/commentDTO'
+                      pagination:
+                        type: object
+                        description: Pagination
+                        properties:
+                          totalPages:
+                            type: number
+                            example: 0
+                          itemsPerPage:
+                            type: number
+                            example: 0
+                          totalItems:
+                            type: number
+                            example: 0
+                          currentPage:
+                            type: number
+                            example: 0
+                          nextPage:
+                            type: number
+                            example: 0
+                          previousPage:
+                            type: number
+                            example: 0
         '404':
           description: Post doesn't exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
     
     post:
       tags:
         - comment
+      security:
+        - bearerAuth: []
       summary: Send a comment
-      description: a user comments on a post
+      description: Endpoint used to create a comment
       requestBody:
         content:
           application/json:
@@ -327,7 +474,7 @@ paths:
       tags:
         - comment
       summary: Read a comment
-      description: Reading a comment
+      description: Endpoint used to get a comment
       responses:
         '200':
           description: Comment object
@@ -337,12 +484,18 @@ paths:
                 $ref: '#/components/schemas/commentDTO'
         '400':
           description: Comment doesn't exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/code404"
   
     patch:
       tags: 
         - comment
+      security:
+        - bearerAuth: []
       summary: Update comment
-      description: User updates his comment
+      description: Endpoint used to update a comment
       requestBody:
         content:
           application/json:
@@ -359,8 +512,10 @@ paths:
     delete:
       tags: 
         - comment
+      security:
+        - bearerAuth: []
       summary: Delete a comment
-      description: a user deletes a comment
+      description: Endpoint used to delete a comment
       responses:
         '200':
           description: Comment deleted
@@ -373,7 +528,8 @@ paths:
     get:
       tags:
         - like
-      summary: likes from comments
+      summary: Count of likes from comment
+      description: Endpoint used to get a count of Like of comment
       parameters:
         - $ref: '#/components/parameters/like'
       responses:
@@ -387,8 +543,10 @@ paths:
     post:
       tags:
         - like
+      security:
+        - bearerAuth: []
       summary: Send a like
-      description: a user likes a comment
+      description: Endpoint used to create a like of comment
       requestBody:
         content:
           application/json:
@@ -405,8 +563,10 @@ paths:
     patch:
       tags: 
         - like
+      security:
+        - bearerAuth: []
       summary: Update like
-      description: User updates modifies his like
+      description: Endpoit used to update a like of comment
       requestBody:
         content:
           application/json:
@@ -423,13 +583,20 @@ paths:
     delete:
       tags: 
         - like
+      security:
+        - bearerAuth: []
       summary: user removes his like
-      description: a user removes his like
+      description: Enpoint used to remove a Like of comment
       responses:
         '204':
           description: like removed
 
 components:
+  securitySchemes:
+      bearerAuth:            # arbitrary name for the security scheme
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
   schemas:
     requestLoginDTO:
       type: object
@@ -597,7 +764,31 @@ components:
         is_public:
           type: boolean
           example: true
-
+          
+    pagination:
+      type: object
+      description: Pagination
+      properties:
+        totalPages:
+          type: number
+          example: 0
+        itemsPerPage:
+          type: number
+          example: 0
+        totalItems:
+          type: number
+          example: 0
+        currentPage:
+          type: number
+          example: 0
+        nextPage:
+          type: number
+          example: 0
+        previousPage:
+          type: number
+          example: 0
+        
+    
     commentDTO:
       type: object
       properties:
@@ -643,6 +834,39 @@ components:
         message: 
           type: string
           example: suscessful action
+    code400:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          example: 400
+        code:
+          type: string
+          example: 'Bad Request'
+    code404:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          example: 404
+        code:
+          type: string
+          example: 'Not Found'
+    code409:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          example: 409
+        code:
+          type: string
+          example: 'Browser conflict'
+    code500:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'A general error occurred'
   parameters:
     postId:
       name: postId
@@ -675,3 +899,18 @@ components:
       schema:
         type: boolean
         example: true
+    take:
+      name: take
+      in: query
+      required: false
+      schema:
+        type: number
+        default: 10
+    page: 
+      name: page
+      in: query
+      required: false
+      schema:
+        type: number
+        default: 1
+        
